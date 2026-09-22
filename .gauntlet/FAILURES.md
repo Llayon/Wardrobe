@@ -19,6 +19,15 @@
 - **PowerShell curl:** never inline JSON in `-d`; always `-d @file`
   (UTF-8 no BOM), or use Node `fetch` scripts.
 
+## F-002: Aliased the stale deployment — twice
+
+- **Symptom:** After a fresh Preview deploy, smoke checks hit old code twice
+  (Holodilnik once, Wardrobe once): `vercel alias set` was given a deployment
+  URL recalled from memory instead of the just-built one.
+- **Fix:** always copy the deployment URL from the current deploy log output;
+  verify with a content check (bundle hash / status endpoint) after aliasing.
+- **Rule:** never type a deployment URL from memory.
+
 ## F-001: Real telegram-web-app.js clobbers faked window.Telegram in E2E
 
 - **Symptom:** All bridge-dependent E2E failed (anonymous landing instead of

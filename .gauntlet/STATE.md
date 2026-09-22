@@ -55,3 +55,24 @@ Supabase link + `db push` validation deferred to Gauntlet 1 (migration DRAFT).
 
 WARDROBE GAUNTLET 0 READY — then report the proposed Phase 1/2 plan.
 No scan feature implementation until architectural critic is green.
+
+---
+
+## Phase 1–2 implementation status (2026-09-22, code complete, infra partial)
+
+- Phase 1 critic C-101 closed; 12/12 E2E. Phase 2 critic C-201/C-202/C-203
+  closed; billing/ownership/thumbnail suites green (see CRITIC.md).
+- Live store suites green against shared Supabase (tables + Storage
+  round-trip + cascade; F-002 recorded).
+- Migrations `20260922000000/1` APPLIED remotely (6/6 local == remote).
+- Vercel project `wardrobe-app` created; stable alias
+  `https://wardrobe-smoke.vercel.app` → latest Preview (re-alias per deploy).
+- Preview env present: service token (pipe-installed, never displayed),
+  `USER_PLATFORM_URL`, flag true, `SUPABASE_URL` + service key (pipe),
+  `DATABASE_URL` (pipe). Credential `c576cf…` active; stillborns revoked.
+- STILL NEEDED (operator dashboard, values never in chat): KV/Upstash
+  connection for `wardrobe-app`, `ZAI_API_KEY` + `GROQ_API_KEY` (Preview),
+  Preview protection exception (or temporary disable) for the smoke alias,
+  second BotFather Mini App (`wardrobe` short_name) → smoke alias.
+- Without AI keys, Preview runs mock vision; without Redis, scans 503
+  (fail-closed); store path is live.

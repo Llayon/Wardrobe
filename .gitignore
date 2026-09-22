@@ -11,3 +11,5 @@ test-*.png
 .DS_Store
 .vercel/
 supabase/.temp/
+
+.vercel
