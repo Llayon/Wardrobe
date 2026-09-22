@@ -1,12 +1,17 @@
 # STATE.md — Wardrobe Checkpoint
 
-## Current Checkpoint: GAUNTLET 0 — DISCOVERY + ARCHITECTURE (IN PROGRESS)
+## Current Checkpoint: WARDROBE GAUNTLET 0 READY
 
 **Date:** 2026-09-22
 **Repository:** `Llayon/Wardrobe` (public, created this pass via `gh repo create`)
-**Branch:** main (GitHub default; Holodilnik/UserPlatform use master — Wardrobe
-starts on default `main`, no reason to diverge from the default)
+**Branch:** main @ `dec0172` (pushed, clean; repo-local builder identity,
+same convention as siblings)
 **Local path:** `D:\Programms\Max\Wardrobe`
+
+Gates: format ✅ · lint (0 errors) · typecheck ✅ · unit 2/2 ✅ · build ✅ ·
+secret scan clean (placeholders only) · critic C-001/C-002 closed, no open
+BLOCKER/P1. E2E harness configured, first specs land in Gauntlet 1.
+Supabase link + `db push` validation deferred to Gauntlet 1 (migration DRAFT).
 
 ### Frozen references (do not modify)
 
