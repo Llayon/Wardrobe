@@ -22,7 +22,9 @@ create table wardrobe.item_images (
   mime_type text not null default 'image/webp' check (mime_type = 'image/webp'),
   width integer not null check (width between 64 and 2048),
   height integer not null check (height between 64 and 2048),
-  byte_size integer not null check (byte_size between 1024 and 204800),
+  -- Lower bound is only positivity: flat garments legitimately compress
+  -- below 1 KB; width/height floors + sha256 + the pipeline carry integrity.
+  byte_size integer not null check (byte_size > 0 and byte_size <= 204800),
   created_at timestamptz not null default now()
 );
 

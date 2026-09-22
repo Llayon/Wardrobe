@@ -61,3 +61,29 @@ No open BLOCKER or P1. Gauntlet 0 may commit.
   overflow-free. Real client fails closed (503) without a token in prod and
   uses the mock only off-prod.
 - No open BLOCKER/P1. Phase 1 exit gate met → auto-continue Phase 2.
+
+## Phase 2 critic pass — vertical slice (2026-09-22, CLOSED)
+
+- **C-201 [P1] DB CHECK would have rejected real thumbnails:** `byte_size
+BETWEEN 1024 AND 204800` fails flat garments (real webp measured 246 B).
+  FIXED before first apply: `byte_size > 0 AND <= 204800` (width/height
+  floors + sha + pipeline carry integrity).
+- **C-202 [P1] Mock identities broke UUID-shape guards:** mock users were
+  `mock:telegram:…` strings, so storage-path validation rejected every
+  confirm in tests. FIXED: mock mints deterministic UUIDv5-style IDs —
+  closer to production AND proves the path guard works (it caught the fake).
+- **C-203 [P1] Confirm-without-scan proof:** confirm proves the scan via
+  same-key reserve-reuse; a fresh key is released immediately (balance
+  neutral, no ledger row) + 409. Tested (balance untouched).
+- **Attacked and repelled:** billing matrix (1/scan, ×3 idempotent, 402 with
+  zero AI calls, release-on-failure, commit-timeout replay with single AI
+  call, 1-of-10 concurrency, smuggled fields inert, 413-free validation,
+  forged-cookie 401, anonymous legacy intact); ownership IDOR (foreign
+  list/delete/image 404, owner cascade verified); anon-quota exhaustion
+  doesn't block credit holders; grid bound + bytes only via owned
+  `/:id/image`; thumbnail pipeline (bbox crop, webp, EXIF stripped,
+  size bound, undecodable rejected).
+- **Reviewed, not unit-tested:** thumbnail-orphan cleanup on meta-write
+  failure (defensive branch; memory fake can't throw there, live path
+  covered by cascade test instead). Accepted residual, logged.
+- No open BLOCKER/P1.

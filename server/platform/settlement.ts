@@ -10,7 +10,8 @@ export interface SettledScan {
   empty: boolean;
   provider: string;
   modelId: string;
-  cached: boolean;
+  /** Wardrobe MVP runs every action fresh (no vision cache); replays reuse. */
+  cached?: boolean;
   /** Opaque successful result payload (vision candidates). */
   result: unknown;
 }

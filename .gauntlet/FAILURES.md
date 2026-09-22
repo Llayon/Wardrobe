@@ -32,6 +32,21 @@
 - **Rule:** never let the real bridge script load in a test that fakes the
   bridge object.
 
+## F-002: Supabase Storage CDN serves deleted bytes (assert via metadata)
+
+- **Symptom:** Live cascade test failed repeatedly: `remove()` returned
+  success, metadata row gone, yet content reads returned bytes 15s+ later.
+  Chased through Blob-shape handling, pool/transaction theories, and path
+  encoding before instrumenting proved `remove` genuinely succeeded.
+- **Cause:** Uploads carry `cacheControl: max-age=3600`; the edge keeps
+  serving content after the object is deleted (read-after-delete is NOT
+  consistent for bytes, only for metadata/listing).
+- **Fix:** Deletion is asserted via metadata row (synchronous) + bucket
+  LISTING (authoritative). Content reads are never authoritative for
+  deletion. Production is correct regardless: `/:id/image` checks metadata
+  first and 404s without a row, so stale bytes are unreachable by design.
+- **Rule:** never assert Storage deletion with an immediate content read.
+
 ## Watch
 
 - Single transient Node OOM (`Re-embedded builtins`) under `vitest run` on

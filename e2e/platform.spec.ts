@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { blockTelegramScript, fakeTelegramInitData, hashLaunchUrl } from "./helpers.js";
+import {
+  blockTelegramScript,
+  createTempImage,
+  fakeTelegramInitData,
+  hashLaunchUrl,
+} from "./helpers.js";
 
 /**
  * Platform integration E2E (mock Platform, zero quota). The dev server runs
@@ -76,6 +81,27 @@ test.describe("platform integration (mock)", () => {
     await page.getByTestId("auth-retry").click();
     await expect(page.getByTestId("landing")).toBeVisible({ timeout: 10000 });
     await expect(page.getByTestId("balance-chip")).toContainText("AI-кредит", { timeout: 10000 });
+  });
+
+  test("full flow: upload → candidates → confirm → grid, 10 → 9", async ({ page }) => {
+    await telegramPage(page, 9201);
+    await page.goto("/");
+    await expect(page.getByTestId("balance-chip")).toContainText("10 AI-кредитов", {
+      timeout: 10000,
+    });
+
+    const imgPath = await createTempImage("test-wardrobe-flow.png");
+    await page.getByTestId("input-upload").setInputFiles(imgPath);
+    await expect(page.getByTestId("photo-step")).toBeVisible({ timeout: 8000 });
+    await page.getByTestId("analyze-btn").click();
+    await expect(page.getByTestId("candidates-step")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("candidate-black_jeans")).toBeVisible();
+
+    await page.getByTestId("confirm-btn").click();
+    await expect(page.getByTestId("grid")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("item-black_jeans")).toBeVisible();
+    await expect(page.getByTestId("thumb-black_jeans")).toBeVisible();
+    await expect(page.getByTestId("balance-chip")).toContainText("9 AI-кредитов");
   });
 
   test("authenticated viewports 360/390/430: no overflow, chip visible", async ({ page }) => {

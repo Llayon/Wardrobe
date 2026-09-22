@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { PlatformError, platformUnavailable } from "./errors.js";
 import type { IPlatformClient } from "./client.js";
 import type {
@@ -95,7 +95,10 @@ export class MockPlatformClient implements IPlatformClient {
   }
 
   private userIdFor(platform: HostPlatformName, key: string): string {
-    return `mock:${platform}:${key}`;
+    // Deterministic UUID-shaped identity (mirrors real UUID user IDs so
+    // downstream UUID-shape guards, like storage paths, behave identically).
+    const hex = createHash("sha256").update(`mock:${platform}:${key}`).digest("hex");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
   }
 
   private ensureWallet(userId: string): { available: number; reserved: number } {
