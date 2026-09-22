@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import platformRouter from "./routes/platform.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +37,10 @@ app.get("/api/health", (_req, res) => {
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "wardrobe", mockMode: process.env.MOCK_MODE === "true" });
 });
+
+// Mounted at both /api/* and /* for Vercel stripped-prefix compatibility.
+app.use("/api/platform", platformRouter);
+app.use("/platform", platformRouter);
 
 if (!process.env.VERCEL) {
   const distPath = path.resolve(__dirname, "../dist");

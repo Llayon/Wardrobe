@@ -32,6 +32,10 @@ export default defineConfig({
       env: {
         PORT: "3003",
         MOCK_MODE: "true",
+        // Platform integration ON with no service token → shared mock
+        // Platform client (mock wallet, zero quota, per-test isolation via
+        // POST /api/platform/dev/reset).
+        PLATFORM_INTEGRATION_ENABLED: "true",
       },
     },
     {

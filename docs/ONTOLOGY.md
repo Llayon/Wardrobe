@@ -45,7 +45,14 @@ Do NOT block MVP on pattern accuracy; category+color carry the product.
   "season": "all",
   "status": "active",
   "sourceRequestId": "client uuid (idempotent confirm)",
-  "thumbnail": { "webpBytes": 68400, "width": 512, "height": 512, "sha256": "…" }
+  "thumbnail": {
+    "storagePath": "<user_uuid>/<item_uuid>.webp (private bucket, server-derived)",
+    "contentHash": "sha256 of webp bytes",
+    "mimeType": "image/webp",
+    "width": 512,
+    "height": 512,
+    "byteSize": 68400
+  }
 }
 ```
 

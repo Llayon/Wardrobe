@@ -46,3 +46,18 @@ holes, and anything that would break Gauntlets 1–2.
   UNAPPLIED until then.
 
 No open BLOCKER or P1. Gauntlet 0 may commit.
+
+## Phase 1 critic pass — platform integration (2026-09-22, CLOSED)
+
+- **C-101 [BLOCKER] E2E faked the bridge wrong:** all bridge E2E failed
+  anonymous while backend+units were green — the real CDN script clobbered
+  `addInitScript` fakes (F-001). FIXED: abort the script when faking the
+  bridge; separate WebK hash-path test. 12/12 green after.
+- **Attacked and repelled (mock + routes + E2E):** shared-store cross-app
+  matrix (fridge cred/session vs wardrobe ops and back → 403 both ways;
+  same-user commit/release across apps → 403; own-app flows allow);
+  exchange JSON token-free (string-matched); tampered cookie 401; outage 503
+  with retry recovery; flag-off 404s; mocked zero-balance chip; 360/390/430
+  overflow-free. Real client fails closed (503) without a token in prod and
+  uses the mock only off-prod.
+- No open BLOCKER/P1. Phase 1 exit gate met → auto-continue Phase 2.

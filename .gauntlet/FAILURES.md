@@ -19,6 +19,19 @@
 - **PowerShell curl:** never inline JSON in `-d`; always `-d @file`
   (UTF-8 no BOM), or use Node `fetch` scripts.
 
+## F-001: Real telegram-web-app.js clobbers faked window.Telegram in E2E
+
+- **Symptom:** All bridge-dependent E2E failed (anonymous landing instead of
+  authenticated chip) while unit tests and the backend were green.
+- **Cause:** `addInitScript` fakes run before page scripts; the real
+  `telegram-web-app.js` then loads and replaces the fake with an empty
+  bridge (no parent frame to wire in tests).
+- **Fix:** E2E aborts the CDN script (`blockTelegramScript`) when faking the
+  bridge, and covers the WebK hash path separately via `#tgWebAppData`.
+  Production keeps the script untouched.
+- **Rule:** never let the real bridge script load in a test that fakes the
+  bridge object.
+
 ## Watch
 
 - Single transient Node OOM (`Re-embedded builtins`) under `vitest run` on

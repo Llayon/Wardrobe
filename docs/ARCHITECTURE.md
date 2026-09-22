@@ -37,12 +37,12 @@ Recipes-analog (outfits) arrives next gauntlet over the same rails with
 
 ## Data ownership
 
-| Layer            | Owner        | Store           |
-| ---------------- | ------------ | --------------- |
-| identity/session | UserPlatform | platform tables |
-| credits/ledger   | UserPlatform | wallet + ledger |
-| items/thumbnails | Wardrobe     | `wardrobe.*`    |
-| anonymous abuse  | Wardrobe     | Redis counters  |
+| Layer               | Owner        | Store                                                   |
+| ------------------- | ------------ | ------------------------------------------------------- |
+| identity/session    | UserPlatform | platform tables                                         |
+| credits/ledger      | UserPlatform | wallet + ledger                                         |
+| items (+thumb meta) | Wardrobe     | `wardrobe.*` (bytes in private `wardrobe-items` bucket) |
+| anonymous abuse     | Wardrobe     | Redis counters                                          |
 
 Wardrobe never writes platform tables; UserPlatform never reads wardrobe
 tables. The join key is the internal user UUID carried server-side only.

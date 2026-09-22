@@ -43,18 +43,38 @@
 
 ## W-004: Dedicated `wardrobe.*` schema on shared Supabase infrastructure
 
-- **Decision:** Same Supabase project (one operator, one bill, RLS-separated),
+- **Decision:** Same Supabase project (`user-platform`, linked this pass —
+  remote shows the 4 platform migrations, local draft pending, no collision),
   new schema `wardrobe.*` owned by this repo's migrations:
-  `wardrobe.items` + `wardrobe.item_images` now; `wardrobe.outfits` (+join)
-  in the outfits gauntlet. Owner column = platform internal UUID as plain
-  `uuid` with NO database FK to platform tables (portability); authorization
-  is application-side from the validated session on every query.
-- **Context:** Decision 4 forbids Wardrobe tables in UserPlatform migrations
-  and DB-level coupling. RLS deny-by-default mirrors the platform posture;
-  API uses service-role server-side only.
-- **Consequence:** `supabase/migrations/0001_wardrobe_items.sql` (DRAFT,
-  unapplied). Bytea thumbnails fit MVP scale (TOAST); Supabase Storage bucket
-  is the documented escape hatch, not MVP scope.
+  `wardrobe.items` now; `wardrobe.outfits` (+join) in the outfits gauntlet.
+  Owner column = platform internal UUID as plain `uuid` with NO database FK
+  to platform tables (portability); authorization is application-side from
+  the validated session on every query.
+- **Context:** Operator decision 4 forbids Wardrobe tables in UserPlatform
+  migrations and DB-level coupling. RLS deny-by-default mirrors the platform
+  posture; API uses service-role server-side only.
+- **Consequence:** `supabase/migrations/20260922000000_wardrobe_items.sql`
+  - `20260922xxxxxx_wardrobe_storage.sql` (DRAFT, unapplied).
+
+## W-007: Thumbnails in private Supabase Storage, metadata in Postgres (amends W-004)
+
+- **Decision:** Item thumbnails persist in a dedicated PRIVATE bucket
+  `wardrobe-items` (never public; no permissive storage policies for it —
+  service-role bypasses RLS server-side, anon/authenticated get nothing).
+  Postgres keeps metadata only (`item_id`, `storage_path`, `content_hash`,
+  `mime_type`, `width`, `height`, `byte_size`). Path shape
+  `<user_uuid>/<item_uuid>.webp` enforced BOTH by a DB CHECK constraint and
+  server-side derivation from the validated session (browser-supplied paths
+  never trusted). Served to browsers as base64 via authenticated API (no
+  signed public URLs in MVP).
+- **Context:** Operator correction to Gauntlet 0 storage: bytea-in-Postgres
+  rejected for the first real slice; Storage from day one. Keeps rows small,
+  thumbnails CDN-capable later, same privacy posture (private bucket).
+- **Consequence:** Migration `0001` carries `items` only; `0002` creates the
+  bucket (+limits: 200 KB, `image/webp` only) and the metadata table. New
+  runtime deps for Phase 2: `@supabase/supabase-js` (service-role server
+  only) + `sharp` (crop/re-encode/strip), `SUPABASE_URL` /
+  `SUPABASE_SERVICE_ROLE_KEY` server envs.
 
 ## W-005: Credit policy (registry as-is, shopping_check excluded)
 
