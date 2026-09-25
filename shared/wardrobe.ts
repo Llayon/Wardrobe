@@ -50,8 +50,10 @@ export const uncertainGarmentSchema = z.object({
 });
 
 export const wardrobeScanSchema = z.object({
-  items: z.array(candidateItemSchema).min(0).max(12),
-  uncertainItems: z.array(uncertainGarmentSchema).min(0).max(10),
+  // Providers routinely omit empty arrays — defaults keep the contract
+  // total (a missing key is NOT malformed input).
+  items: z.array(candidateItemSchema).min(0).max(12).default([]),
+  uncertainItems: z.array(uncertainGarmentSchema).min(0).max(10).default([]),
 });
 export type WardrobeScan = z.infer<typeof wardrobeScanSchema>;
 

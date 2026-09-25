@@ -115,6 +115,16 @@ describe("parseWardrobeJson (shared validation)", () => {
     expect(out.items).toHaveLength(1);
   });
 
+  it("tolerates omitted empty arrays (providers omit them)", () => {
+    const out = parseWardrobeJson(
+      '{"items": [{"canonicalName": "x", "displayName": "X", "category": "shoes", "confidence": 0.8}]}',
+      "test",
+    );
+    expect(out.items).toHaveLength(1);
+    expect(out.uncertainItems).toEqual([]);
+    expect(parseWardrobeJson("{}", "test")).toEqual({ items: [], uncertainItems: [] });
+  });
+
   it("rejects unknown categories (no silent misclassification)", () => {
     expect(() =>
       parseWardrobeJson(
