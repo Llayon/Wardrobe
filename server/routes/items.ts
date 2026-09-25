@@ -371,6 +371,12 @@ async function executeSettlingScan(
     provider = out.provider;
     modelId = out.modelId;
   } catch (aiErr) {
+    // Log the provider error CLASS (message only, sliced — never image
+    // bytes, keys, or initData; provider errors carry none of those).
+    const aiMsg = aiErr instanceof Error ? aiErr.message : String(aiErr);
+    console.error(
+      `[scan] rid=${ctx.requestLogId} provider_failed class=${classifyVisionError(aiMsg)} msg=${aiMsg.slice(0, 300)}`,
+    );
     await releaseBestEffort(client, token, reservationId, ctx.requestLogId);
     throw new ScanFailedError(...mapVisionFailure(aiErr));
   }
@@ -431,6 +437,18 @@ async function releaseBestEffort(
       if (i === attempts - 1) console.error(`[scan] rid=${logId} release_failed_after_retries`);
     }
   }
+}
+
+function classifyVisionError(message: string): string {
+  const lower = message.toLowerCase();
+  if (message.includes("429") || lower.includes("quota") || /\b130[23458]\b/.test(message))
+    return "rate_limited";
+  if (lower.includes("timeout") || lower.includes("abort")) return "timeout";
+  if (message.includes("503") || lower.includes("overloaded") || lower.includes("unavailable"))
+    return "unavailable";
+  if (message.includes("Invalid JSON") || lower.includes("empty response")) return "malformed";
+  if (message.includes("401") || lower.includes("invalid")) return "auth_or_invalid";
+  return "provider_error";
 }
 
 function mapVisionFailure(err: unknown): [number, Record<string, unknown>] {
