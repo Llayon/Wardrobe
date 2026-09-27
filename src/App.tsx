@@ -475,7 +475,9 @@ export default function App() {
               disabled={selected.size === 0}
               data-testid="confirm-btn"
             >
-              Сохранить в гардероб →
+              {selected.size === 0
+                ? "Выбери вещи галочками"
+                : `Сохранить в гардероб (${selected.size}) →`}
             </button>
             <button className="btn btn-ghost btn-small" onClick={() => setStep("photo")}>
               ← Вернуться к фото
