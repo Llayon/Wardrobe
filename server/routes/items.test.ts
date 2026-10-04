@@ -257,7 +257,10 @@ describe("confirm + grid + ownership (authenticated persistence)", () => {
       selections: SELECTIONS,
     });
     expect(again.status).toBe(200);
-    expect(again.body.items).toHaveLength(0);
+    // Idempotent retry: full current set returned, created=0, no duplicates.
+    expect(again.body.items).toHaveLength(2);
+    expect(again.body.created).toBe(0);
+    expect(confirm.body.created).toBe(2);
 
     const grid = await agent.get("/api/items");
     expect(grid.status).toBe(200);

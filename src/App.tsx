@@ -41,6 +41,7 @@ export default function App() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [items, setItems] = useState<StoredItemView[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [customName, setCustomName] = useState("");
   const [customCategory, setCustomCategory] = useState<string>("top");
 
@@ -128,6 +129,7 @@ export default function App() {
       return;
     }
     setError(null);
+    setNotice(null);
     setStep("analyzing");
     try {
       const { data, meta } = await scanItems({
@@ -203,6 +205,7 @@ export default function App() {
   const handleConfirm = async () => {
     if (!imageBase64) return;
     setError(null);
+    setNotice(null);
     try {
       const selections = candidates
         .filter((c) => selected.has(c.canonicalName))
@@ -213,12 +216,19 @@ export default function App() {
           colors: c.colors,
           season: "all",
         }));
-      const { items: created } = await confirmItems({
+      const { items: current, created } = await confirmItems({
         requestId: scanRequestIdRef.current,
         imageBase64,
         selections,
       });
-      setItems((prev) => [...created, ...prev]);
+      // Merge by id (never duplicate), newest first.
+      setItems((prev) => {
+        const known = new Set(current.map((i) => i.id));
+        return [...current, ...prev.filter((i) => !known.has(i.id))];
+      });
+      if (created === 0) {
+        setNotice("Эти вещи уже в гардеробе — дубликатов нет.");
+      }
       setStep("grid");
     } catch (e) {
       if (isWardrobeApiError(e) && e.code === "SESSION_EXPIRED") {
@@ -250,6 +260,7 @@ export default function App() {
   };
 
   const resetToLanding = () => {
+    setNotice(null);
     if (imagePreviewUrl && imagePreviewUrl.startsWith("blob:")) {
       URL.revokeObjectURL(imagePreviewUrl);
     }
@@ -489,6 +500,11 @@ export default function App() {
           <section className="recs" data-testid="grid">
             <h2>Мой гардероб</h2>
             {error && <div className="error-banner">{error}</div>}
+            {notice && (
+              <div className="info-banner" data-testid="info-banner">
+                {notice}
+              </div>
+            )}
             {items.length === 0 && <p className="subtitle">Пока пусто — добавь первые вещи.</p>}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {items.map((item) => (

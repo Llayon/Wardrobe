@@ -85,14 +85,14 @@ export async function confirmItems(params: {
     colors: string[];
     season: string;
   }>;
-}): Promise<{ items: StoredItemView[] }> {
+}): Promise<{ items: StoredItemView[]; created: number }> {
   const res = await fetch("/api/items/confirm", {
     method: "POST",
     headers: deviceHeaders(),
     body: JSON.stringify(params),
   });
   if (!res.ok) await parseError(res, "Ошибка сохранения");
-  return (await res.json()) as { items: StoredItemView[] };
+  return (await res.json()) as { items: StoredItemView[]; created: number };
 }
 
 export async function listItems(limit = 20): Promise<{ items: StoredItemView[] }> {

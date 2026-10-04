@@ -613,11 +613,28 @@ router.post("/confirm", async (req, res) => {
     console.error(`[confirm] persist failed msg=${String(err).slice(0, 300)}`);
     return res.status(502).json({ error: "Не удалось сохранить вещи", code: "PERSIST_FAILED" });
   }
-  const parsedCreated = storedItemSchema.array().safeParse(created);
-  if (!parsedCreated.success) {
-    return res.status(500).json({ error: "Internal server error", code: "INTERNAL_ERROR" });
+  // Respond with the FULL current set for the request (stored earlier +
+  // created now) plus the created count, so retries are distinguishable
+  // from fresh saves and can never duplicate grid state client-side.
+  try {
+    const all = await store.findByRequest(userId, parsed.data.requestId);
+    const createdIds = new Set((created as Array<{ id: string }>).map((c) => c.id));
+    const payload = [];
+    for (const item of all) {
+      const meta = await store.getImageMeta(item.id);
+      payload.push(toStoredPayload(item, meta));
+    }
+    const parsedAll = storedItemSchema.array().safeParse(payload);
+    if (!parsedAll.success) {
+      return res.status(500).json({ error: "Internal server error", code: "INTERNAL_ERROR" });
+    }
+    return res.json({
+      items: parsedAll.data,
+      created: all.filter((i) => createdIds.has(i.id)).length,
+    });
+  } catch {
+    return res.status(503).json({ error: "Сервис временно недоступен", code: "STORE_UNAVAILABLE" });
   }
-  return res.json({ items: parsedCreated.data });
 });
 
 function toStoredPayload(

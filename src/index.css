@@ -183,6 +183,14 @@ body {
   border-style: dashed;
 }
 
+.info-banner {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
 .uncertain-section h3 {
   font-size: 14px;
   color: var(--muted);
